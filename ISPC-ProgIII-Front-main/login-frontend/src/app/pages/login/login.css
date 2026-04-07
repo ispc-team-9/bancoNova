@@ -171,6 +171,49 @@ input.input-error {
   box-shadow: 0 0 0 2px rgba(255, 128, 128, 0.18);
 }
 
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 2.9rem;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.6rem;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(128, 152, 189, 0.45);
+  background: rgba(5, 14, 30, 0.92);
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.password-toggle:hover {
+  border-color: var(--accent-cyan);
+  box-shadow: none;
+  filter: none;
+  transform: translateY(-50%);
+}
+
+.password-toggle:hover:not(:disabled) {
+  box-shadow: none;
+  transform: translateY(-50%);
+  filter: none;
+}
+
 .form-options {
   display: flex;
   align-items: center;
@@ -257,15 +300,6 @@ button:disabled {
   color: #d0d7e8;
   cursor: not-allowed;
   box-shadow: none;
-}
-
-.button-loader {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.45);
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: spin 0.75s linear infinite;
 }
 
 .card-footnote {
@@ -358,12 +392,6 @@ h2 {
   50% {
     transform: scale(1.08);
     opacity: 0.56;
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
   }
 }
 

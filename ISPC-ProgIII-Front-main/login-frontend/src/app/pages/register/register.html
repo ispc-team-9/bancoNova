@@ -40,6 +40,21 @@
         </div>
 
         <div class="field-group">
+          <label for="dni">DNI</label>
+          <input
+            id="dni"
+            type="text"
+            formControlName="dni"
+            autocomplete="off"
+            placeholder="Solo numeros"
+            [class.input-error]="hasFieldError('dni')"
+            [attr.aria-invalid]="hasFieldError('dni')"
+            required
+          >
+          <p class="error-text" *ngIf="hasFieldError('dni')">{{ getFieldError('dni') }}</p>
+        </div>
+
+        <div class="field-group">
           <label for="password">Contrasena</label>
           <input
             id="password"

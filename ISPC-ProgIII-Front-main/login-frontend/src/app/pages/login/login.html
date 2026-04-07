@@ -10,32 +10,43 @@
 
       <form class="tft-login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <div class="field-group">
-          <label for="username">Usuario</label>
+          <label for="dni">DNI</label>
           <input
             type="text"
-            id="username"
-            formControlName="username"
+            id="dni"
+            formControlName="dni"
             autocomplete="username"
-            placeholder="Tu nombre de invocador"
-            [class.input-error]="hasFieldError('username')"
-            [attr.aria-invalid]="hasFieldError('username')"
+            placeholder="Solo numeros"
+            [class.input-error]="hasFieldError('dni')"
+            [attr.aria-invalid]="hasFieldError('dni')"
             required
           >
-          <p class="error-text" *ngIf="hasFieldError('username')">{{ getFieldError('username') }}</p>
+          <p class="error-text" *ngIf="hasFieldError('dni')">{{ getFieldError('dni') }}</p>
         </div>
 
         <div class="field-group">
           <label for="password">Contrasena</label>
-          <input
-            type="password"
-            id="password"
-            formControlName="password"
-            autocomplete="current-password"
-            placeholder="Ingresa tu clave"
-            [class.input-error]="hasFieldError('password')"
-            [attr.aria-invalid]="hasFieldError('password')"
-            required
-          >
+          <div class="password-field">
+            <input
+              [type]="isPasswordVisible ? 'text' : 'password'"
+              id="password"
+              formControlName="password"
+              autocomplete="current-password"
+              placeholder="Ingresa tu clave"
+              [class.input-error]="hasFieldError('password')"
+              [attr.aria-invalid]="hasFieldError('password')"
+              required
+            >
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="isPasswordVisible ? 'Ocultar contrasena' : 'Mostrar contrasena'"
+              [attr.aria-pressed]="isPasswordVisible"
+            >
+              {{ isPasswordVisible ? '👀' : '👁' }}
+            </button>
+          </div>
           <p class="error-text" *ngIf="hasFieldError('password')">{{ getFieldError('password') }}</p>
         </div>
 
@@ -49,10 +60,10 @@
         </div>
 
         <p class="api-error" *ngIf="apiError">{{ apiError }}</p>
+        <p class="api-error" *ngIf="isLoginBlocked">Bloqueado temporalmente. Tiempo restante: {{ lockRemainingText }}</p>
 
-        <button type="submit" [disabled]="isLoading || loginForm.invalid">
-          <span class="button-loader" *ngIf="isLoading" aria-hidden="true"></span>
-          <span>{{ isLoading ? 'Ingresando...' : 'Entrar a la Arena' }}</span>
+        <button type="submit" [disabled]="isLoading || loginForm.invalid || isLoginBlocked">
+          <span>{{ isLoading ? 'Ingresando...' : (isLoginBlocked ? 'Bloqueado' : 'Entrar a la Arena') }}</span>
         </button>
       </form>
 

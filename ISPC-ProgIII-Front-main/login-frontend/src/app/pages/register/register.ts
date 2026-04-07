@@ -24,6 +24,7 @@ export class Register {
   registerForm = this.fb.group({
     username: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
+    dni: ['', [Validators.required, Validators.pattern(/^\d{7,10}$/)]],
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
 
@@ -41,7 +42,12 @@ export class Register {
     if (control.errors['required']) {
       if (controlName === 'username') return 'El usuario es obligatorio.';
       if (controlName === 'email') return 'El email es obligatorio.';
+      if (controlName === 'dni') return 'El DNI es obligatorio.';
       return 'La contrasena es obligatoria.';
+    }
+
+    if (control.errors['pattern']) {
+      return 'Ingresa un DNI valido (solo numeros).';
     }
 
     if (control.errors['email']) {
@@ -67,13 +73,13 @@ export class Register {
       return;
     }
 
-    const { username, email, password } = this.registerForm.getRawValue();
+    const { username, email, dni, password } = this.registerForm.getRawValue();
 
     this.isLoading = true;
     this.apiError = '';
 
     this.authService
-      .register({ username: username!, email: email!, password: password! })
+      .register({ username: username!, email: email!, dni: dni!, password: password! })
       .pipe(finalize(() => {
         this.isLoading = false;
       }))
@@ -94,6 +100,7 @@ export class Register {
           this.apiError =
             error?.error?.username?.[0] ||
             error?.error?.email?.[0] ||
+            error?.error?.dni?.[0] ||
             error?.error?.password?.[0] ||
             error?.error?.detail ||
             'No se pudo registrar el usuario.';

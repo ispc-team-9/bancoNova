@@ -1,11 +1,12 @@
 export interface LoginRequest {
-  username: string;
+  dni: string;
   password: string;
 }
 
 export interface RegisterRequest {
   username: string;
   email: string;
+  dni: string;
   password: string;
 }
 
@@ -13,6 +14,7 @@ export interface RegisterResponse {
   id: number;
   username: string;
   email: string;
+  dni: string | null;
 }
 
 export interface LoginResponse {
@@ -22,6 +24,7 @@ export interface LoginResponse {
     id: number;
     username: string;
     email: string;
+    dni: string | null;
   };
 }
 

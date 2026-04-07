@@ -5,13 +5,13 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
-from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Q
 from django.utils import timezone
-from .models import PasswordResetOTP
+from .models import LoginAttempt, PasswordResetOTP
 from .serializers import (
+    LoginSerializer,
     PasswordRecoveryRequestSerializer,
     PasswordRecoveryResetSerializer,
     RegisterSerializer,
@@ -27,18 +27,43 @@ class RegisterView(generics.CreateAPIView):
 
 class LoginView(APIView):
     permission_classes = (AllowAny,)
+    max_login_attempts = 3
+    lock_minutes = 5
+    lockout_message = 'usted ocupo sus 3 intentos porfavor espere 5 min para volver a empezar'
 
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        user = authenticate(username=username, password=password)
-        if user:
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        dni = serializer.validated_data['dni']
+        password = serializer.validated_data['password']
+        login_attempt, _ = LoginAttempt.objects.get_or_create(identifier=dni)
+
+        if login_attempt.is_locked():
+            print(self.lockout_message)
+            return Response({'error': self.lockout_message}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+
+        user = User.objects.filter(userprofile__dni=dni).first()
+        if user and user.check_password(password):
+            login_attempt.delete()
             refresh = RefreshToken.for_user(user)
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
                 'user': UserSerializer(user).data
             })
+
+        login_attempt.attempts += 1
+        update_fields = ['attempts']
+        if login_attempt.attempts >= self.max_login_attempts:
+            login_attempt.attempts = 0
+            login_attempt.locked_until = timezone.now() + timedelta(minutes=self.lock_minutes)
+            update_fields.extend(['locked_until'])
+            print(self.lockout_message)
+            login_attempt.save(update_fields=update_fields)
+            return Response({'error': self.lockout_message}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+
+        login_attempt.save(update_fields=update_fields)
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
