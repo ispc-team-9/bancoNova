@@ -1,0 +1,26 @@
+<header class="riot-navbar">
+  <a class="brand-link" routerLink="/home" aria-label="Ir al Home">
+    <span class="brand-mark" aria-hidden="true">
+      <img
+        class="brand-icon"
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Riot_Games_2022_icon.svg/512px-Riot_Games_2022_icon.svg.png"
+        alt=""
+      >
+      <span class="brand-text">RIOT GAMES</span>
+    </span>
+  </a>
+
+  <nav class="nav-links" aria-label="Navegacion principal">
+    <a
+      *ngIf="!isAuthenticated()"
+      routerLink="/"
+      [routerLinkActiveOptions]="{ exact: true }"
+      routerLinkActive="active-link"
+    >
+      Login
+    </a>
+    <a *ngIf="!isAuthenticated()" routerLink="/register" routerLinkActive="active-link">Registro</a>
+    <a *ngIf="isAuthenticated()" routerLink="/dashboard" routerLinkActive="active-link">Dashboard</a>
+    <button *ngIf="isAuthenticated()" type="button" class="logout-button" (click)="logout()">Salir</button>
+  </nav>
+</header>
