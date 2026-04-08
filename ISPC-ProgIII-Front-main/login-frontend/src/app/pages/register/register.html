@@ -18,7 +18,9 @@
             [attr.aria-invalid]="hasFieldError('username')"
             required
           >
-          <p class="error-text" *ngIf="hasFieldError('username')">{{ getFieldError('username') }}</p>
+          @if (hasFieldError('username')) {
+            <p class="error-text">{{ getFieldError('username') }}</p>
+          }
         </div>
 
         <div class="field-group">
@@ -33,7 +35,9 @@
             [attr.aria-invalid]="hasFieldError('email')"
             required
           >
-          <p class="error-text" *ngIf="hasFieldError('email')">{{ getFieldError('email') }}</p>
+          @if (hasFieldError('email')) {
+            <p class="error-text">{{ getFieldError('email') }}</p>
+          }
         </div>
 
         <div class="field-group">
@@ -48,7 +52,9 @@
             [attr.aria-invalid]="hasFieldError('dni')"
             required
           >
-          <p class="error-text" *ngIf="hasFieldError('dni')">{{ getFieldError('dni') }}</p>
+          @if (hasFieldError('dni')) {
+            <p class="error-text">{{ getFieldError('dni') }}</p>
+          }
         </div>
 
         <div class="field-group">
@@ -63,15 +69,21 @@
             [attr.aria-invalid]="hasFieldError('password')"
             required
           >
-          <p class="error-text" *ngIf="hasFieldError('password')">{{ getFieldError('password') }}</p>
+          @if (hasFieldError('password')) {
+            <p class="error-text">{{ getFieldError('password') }}</p>
+          }
         </div>
 
         <div class="captcha-wrapper">
           <div #recaptchaContainer class="recaptcha-slot" aria-label="Verificacion reCAPTCHA"></div>
         </div>
-        <p class="error-text" *ngIf="hasFieldError('captchaToken')">{{ getFieldError('captchaToken') }}</p>
+        @if (hasFieldError('captchaToken')) {
+          <p class="error-text">{{ getFieldError('captchaToken') }}</p>
+        }
 
-        <p class="api-error" *ngIf="apiError">{{ apiError }}</p>
+        @if (apiError) {
+          <p class="api-error">{{ apiError }}</p>
+        }
 
         <button type="submit" [disabled]="isLoading || registerForm.invalid">
           <span>{{ isLoading ? 'Registrando...' : 'Crear cuenta' }}</span>
