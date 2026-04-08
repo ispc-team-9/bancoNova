@@ -9,13 +9,16 @@ from django.conf import settings
 def verify_recaptcha_token(token: str, remote_ip: str | None = None) -> tuple[bool, str | None]:
     secret_key = getattr(settings, 'RECAPTCHA_SECRET_KEY', '').strip()
 
-    if not secret_key:
-        if settings.DEBUG:
-            return True, None
-        return False, 'reCAPTCHA no configurado en el servidor.'
-
     if not token:
         return False, 'Debes completar la verificacion reCAPTCHA.'
+
+    # In local development we still require a token from frontend,
+    # but skip remote verification to avoid network/provider issues.
+    if settings.DEBUG:
+        return True, None
+
+    if not secret_key:
+        return False, 'reCAPTCHA no configurado en el servidor.'
 
     payload: dict[str, str] = {
       'secret': secret_key,
