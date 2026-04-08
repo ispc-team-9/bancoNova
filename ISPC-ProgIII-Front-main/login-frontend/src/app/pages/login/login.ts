@@ -2,9 +2,10 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inj
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { finalize, firstValueFrom } from 'rxjs';
+import { finalize } from 'rxjs';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../service/auth.service';
+import { PasswordRecoveryService } from '../../service/password-recovery.service';
 import { environment } from '../../../environments/environment';
 
 declare global {
@@ -28,6 +29,7 @@ declare global {
 export class Login implements OnInit, AfterViewInit, OnDestroy {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private passwordRecoveryService = inject(PasswordRecoveryService);
   private router = inject(Router);
 
   isLoading = false;
@@ -136,142 +138,7 @@ export class Login implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async onForgotPassword(): Promise<void> {
-    const { value: identifier } = await Swal.fire({
-      title: 'Recuperar cuenta',
-      input: 'text',
-      inputLabel: 'Usuario o correo',
-      inputPlaceholder: 'invocador o invocador@correo.com',
-      showCancelButton: true,
-      confirmButtonText: 'Solicitar OTP',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#2563EB',
-      background: '#FFFFFF',
-      color: '#1E293B',
-      showLoaderOnConfirm: true,
-      preConfirm: async (value) => {
-        const trimmedValue = (value ?? '').trim();
-        if (!trimmedValue) {
-          Swal.showValidationMessage('Ingresa un usuario o correo valido.');
-          return null;
-        }
-
-        try {
-          await firstValueFrom(
-            this.authService.requestOtp({
-              identifier: trimmedValue
-            })
-          );
-          return trimmedValue;
-        } catch (error: any) {
-          const message = error?.error?.error || 'No fue posible solicitar el OTP en este momento.';
-          Swal.showValidationMessage(message);
-          return null;
-        }
-      },
-      allowOutsideClick: () => !Swal.isLoading(),
-      showClass: {
-        popup: 'tft-swal-show'
-      },
-      hideClass: {
-        popup: 'tft-swal-hide'
-      }
-    });
-
-    if (!identifier) {
-      return;
-    }
-
-    await Swal.fire({
-      icon: 'info',
-      title: 'OTP generado',
-      text: 'Revisa la consola del backend para ver el OTP de prueba.',
-      confirmButtonText: 'Continuar',
-      confirmButtonColor: '#2563EB',
-      background: '#FFFFFF',
-      color: '#1E293B',
-      showClass: {
-        popup: 'tft-swal-show'
-      },
-      hideClass: {
-        popup: 'tft-swal-hide'
-      }
-    });
-
-    await Swal.fire({
-      title: 'Confirmar OTP y nueva contrasena',
-      html: `
-        <input id="otpCode" class="swal2-input" placeholder="OTP de 6 digitos" maxlength="6">
-        <input id="newPassword" type="password" class="swal2-input" placeholder="Nueva contrasena">
-        <input id="confirmPassword" type="password" class="swal2-input" placeholder="Confirmar contrasena">
-      `,
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: 'Restablecer',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#2563EB',
-      background: '#FFFFFF',
-      color: '#1E293B',
-      showLoaderOnConfirm: true,
-      preConfirm: async () => {
-        const otpCode = (document.getElementById('otpCode') as HTMLInputElement)?.value?.trim();
-        const newPassword = (document.getElementById('newPassword') as HTMLInputElement)?.value;
-        const confirmPassword = (document.getElementById('confirmPassword') as HTMLInputElement)?.value;
-
-        if (!otpCode || otpCode.length !== 6) {
-          Swal.showValidationMessage('El OTP debe tener 6 digitos.');
-          return;
-        }
-
-        if (!newPassword || newPassword.length < 8) {
-          Swal.showValidationMessage('La nueva contrasena debe tener al menos 8 caracteres.');
-          return;
-        }
-
-        if (newPassword !== confirmPassword) {
-          Swal.showValidationMessage('Las contrasenas no coinciden.');
-          return;
-        }
-
-        try {
-          await firstValueFrom(
-            this.authService.resetPassword({
-              identifier,
-              otp_code: otpCode,
-              new_password: newPassword,
-              confirm_password: confirmPassword
-            })
-          );
-        } catch (error: any) {
-          const message = error?.error?.error || 'No fue posible restablecer la contrasena.';
-          Swal.showValidationMessage(message);
-        }
-      },
-      allowOutsideClick: () => !Swal.isLoading(),
-      showClass: {
-        popup: 'tft-swal-show'
-      },
-      hideClass: {
-        popup: 'tft-swal-hide'
-      }
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        await Swal.fire({
-          icon: 'success',
-          title: 'Contrasena actualizada',
-          text: 'Ya puedes iniciar sesion con tu nueva contrasena.',
-          confirmButtonText: 'Perfecto',
-          confirmButtonColor: '#2563EB',
-          background: '#FFFFFF',
-          color: '#1E293B',
-          showClass: {
-            popup: 'tft-swal-show'
-          },
-          hideClass: {
-            popup: 'tft-swal-hide'
-          }
-        });
-      }
-    });
+    await this.passwordRecoveryService.startRecoveryFlow();
   }
 
   onSubmit() {
