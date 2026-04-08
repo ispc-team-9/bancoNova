@@ -1,10 +1,21 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Roboto:wght@400;600&display=swap');
+
+:root {
+	--bn-primary-dark: #1B3A6B;
+	--bn-primary: #2563EB;
+	--bn-surface: #FFFFFF;
+	--bn-bg: #F1F5F9;
+	--bn-text: #1E293B;
+}
+
 html,
 body {
 	margin: 0;
 	height: 100%;
 	min-height: 100%;
-	background: #050b17;
+	background: var(--bn-bg);
+	font-family: Inter, Roboto, sans-serif;
+	color: var(--bn-text);
 }
 
 app-root {

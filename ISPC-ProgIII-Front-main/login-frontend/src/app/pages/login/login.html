@@ -1,14 +1,11 @@
-<div class="tft-login-page">
-  <div class="ambient-glow ambient-glow-left" aria-hidden="true"></div>
-  <div class="ambient-glow ambient-glow-right" aria-hidden="true"></div>
+<div class="auth-page">
+  <div class="auth-layout">
+    <section class="auth-card" aria-labelledby="login-title">
+      <p class="card-eyebrow">BANCONOVA</p>
+      <h1 id="login-title">Acceso a banca digital</h1>
+      <p class="card-subtitle">Ingresa con tu DNI y contrasena para operar de forma segura.</p>
 
-  <div class="cards-layout">
-    <section class="tft-login-card tft-panel" aria-labelledby="login-title">
-      <p class="card-eyebrow">SET TACTICO • SPACE GODS</p>
-      <h1 id="login-title">Inicia Sesion en la Arena</h1>
-      <p class="card-subtitle">Prepara tu composicion, ajusta tu estrategia y domina cada ronda.</p>
-
-      <form class="tft-login-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <form class="auth-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <div class="field-group">
           <label for="dni">DNI</label>
           <input
@@ -25,7 +22,7 @@
         </div>
 
         <div class="field-group">
-          <label for="password">Contrasena</label>
+          <label for="password">Contraseña</label>
           <div class="password-field">
             <input
               [type]="isPasswordVisible ? 'text' : 'password'"
@@ -44,7 +41,16 @@
               [attr.aria-label]="isPasswordVisible ? 'Ocultar contrasena' : 'Mostrar contrasena'"
               [attr.aria-pressed]="isPasswordVisible"
             >
-              {{ isPasswordVisible ? '👀' : '👁' }}
+              <span class="sr-only">{{ isPasswordVisible ? 'Ocultar contrasena' : 'Mostrar contrasena' }}</span>
+              <svg *ngIf="!isPasswordVisible" class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"></path>
+                <circle cx="12" cy="12" r="3.2"></circle>
+              </svg>
+              <svg *ngIf="isPasswordVisible" class="eye-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M3 3l18 18"></path>
+                <path d="M10.6 6.2A10.7 10.7 0 0 1 12 6c6.5 0 10 6 10 6a17.5 17.5 0 0 1-3.4 3.9"></path>
+                <path d="M6.2 6.2A17.5 17.5 0 0 0 2 12s3.5 6 10 6a10.7 10.7 0 0 0 3.8-.7"></path>
+              </svg>
             </button>
           </div>
           <p class="error-text" *ngIf="hasFieldError('password')">{{ getFieldError('password') }}</p>
@@ -59,37 +65,33 @@
           <button type="button" class="forgot-link" (click)="onForgotPassword()">Olvide mi contraseña</button>
         </div>
 
+        <div class="captcha-wrapper">
+          <div #recaptchaContainer class="recaptcha-slot" aria-label="Verificacion reCAPTCHA"></div>
+        </div>
+        <p class="error-text" *ngIf="hasFieldError('captchaToken')">{{ getFieldError('captchaToken') }}</p>
+
         <p class="api-error" *ngIf="apiError">{{ apiError }}</p>
         <p class="api-error" *ngIf="isLoginBlocked">Bloqueado temporalmente. Tiempo restante: {{ lockRemainingText }}</p>
 
         <button type="submit" [disabled]="isLoading || loginForm.invalid || isLoginBlocked">
-          <span>{{ isLoading ? 'Ingresando...' : (isLoginBlocked ? 'Bloqueado' : 'Entrar a la Arena') }}</span>
+          <span>{{ isLoading ? 'Ingresando...' : (isLoginBlocked ? 'Bloqueado' : 'Ingresar') }}</span>
         </button>
       </form>
 
-      <p class="card-footnote">Cada decision cuenta. Construye tu mejor tablero.</p>
+      <p class="card-footnote">Nunca compartas tus claves ni codigos de validacion.</p>
     </section>
 
-    <aside class="tft-promo-card tft-panel" aria-label="Referencia oficial Teamfight Tactics">
-      <p class="card-eyebrow">SITIO OFICIAL</p>
-      <h2>Explora Teamfight Tactics</h2>
-      <p class="promo-subtitle">Descubre novedades, modos de juego y contenido del set actual directamente desde Riot Games.</p>
-
+    <aside class="info-card" aria-label="Informacion institucional">
+      <p class="info-eyebrow">BANCONOVA</p>
+      <h2>Confianza y seguridad en cada acceso</h2>
+      <p>
+        Aplicamos controles de autenticacion, politicas de bloqueo por intentos y monitoreo continuo para proteger tus datos.
+      </p>
       <img
-        class="promo-image"
-        src="https://i.ytimg.com/vi/oKodzeZwJDo/maxresdefault.jpg"
-        alt="Arte oficial de Teamfight Tactics"
+        src="https://concepto.de/wp-content/uploads/2019/04/comunicacion-corporativa-2-e1554678241139.jpg"
+        alt="Equipo corporativo de BancoNova"
         loading="lazy"
       >
-
-      <a
-        class="promo-link"
-        href="https://teamfighttactics.leagueoflegends.com/es-es/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Ir al sitio de TFT
-      </a>
     </aside>
   </div>
 </div>

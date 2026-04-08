@@ -1,59 +1,77 @@
-# LoginFrontend
+# Login Frontend (Angular)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.3.
+Aplicacion frontend del proyecto ISPC con autenticacion y panel Home institucional.
 
-## Development server
+## Stack
 
-To start a local development server, run:
+- Angular 21
+- RxJS
+- SweetAlert2
+- Angular Reactive Forms
 
-```bash
-ng serve
+## Funcionalidades
+
+- Login por DNI y contrasena.
+- Registro de usuario.
+- Recuperacion de contrasena por OTP.
+- reCAPTCHA v2 (Google) en login y registro.
+- Home con carrusel automatico cada 2 segundos.
+- Tarjetas de contenido destacadas en Home.
+- Boton flotante de WhatsApp.
+
+## Requisitos
+
+- Node.js 18+
+- npm 10+
+
+## Instalacion
+
+```powershell
+npm install
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Ejecutar en desarrollo
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+```powershell
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+URL local: http://localhost:4200
 
-```bash
-ng generate --help
+## Build
+
+```powershell
+npm run build
 ```
 
-## Building
+## Tests
 
-To build the project run:
-
-```bash
-ng build
+```powershell
+npm test
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Configuracion de entorno
 
-## Running unit tests
+Archivo:
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+- src/environments/environment.ts
 
-```bash
-ng test
-```
+Variables:
 
-## Running end-to-end tests
+- apiBaseUrl: URL base del backend.
+- recaptchaSiteKey: Site Key de Google reCAPTCHA.
 
-For end-to-end (e2e) testing, run:
+Para desarrollo local, el proyecto puede usar la Site Key de pruebas de Google.
 
-```bash
-ng e2e
-```
+## Integracion con backend
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+La app consume estos endpoints:
 
-## Additional Resources
+- POST /api/register/
+- POST /api/login/
+- POST /api/password-recovery/request-otp/
+- POST /api/password-recovery/reset/
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+La URL base por defecto es:
+
+- http://localhost:8000/api

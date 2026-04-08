@@ -10,6 +10,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Q
 from django.utils import timezone
 from .models import LoginAttempt, PasswordResetOTP
+from .recaptcha import verify_recaptcha_token
 from .serializers import (
     LoginSerializer,
     PasswordRecoveryRequestSerializer,
@@ -25,6 +26,14 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
 
+    def create(self, request, *args, **kwargs):
+        token = (request.data.get('captcha_token') or '').strip()
+        is_valid_captcha, captcha_error = verify_recaptcha_token(token, request.META.get('REMOTE_ADDR'))
+        if not is_valid_captcha:
+            return Response({'error': captcha_error}, status=status.HTTP_400_BAD_REQUEST)
+
+        return super().create(request, *args, **kwargs)
+
 class LoginView(APIView):
     permission_classes = (AllowAny,)
     max_login_attempts = 3
@@ -34,6 +43,11 @@ class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        token = (serializer.validated_data.get('captcha_token') or '').strip()
+        is_valid_captcha, captcha_error = verify_recaptcha_token(token, request.META.get('REMOTE_ADDR'))
+        if not is_valid_captcha:
+            return Response({'error': captcha_error}, status=status.HTTP_400_BAD_REQUEST)
 
         dni = serializer.validated_data['dni']
         password = serializer.validated_data['password']

@@ -17,10 +17,11 @@ class UserSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     dni = serializers.CharField(max_length=20, write_only=True)
     password = serializers.CharField(write_only=True)
+    captcha_token = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'dni', 'password']
+        fields = ['username', 'email', 'dni', 'password', 'captcha_token']
 
     def validate_dni(self, value):
         dni = value.strip()
@@ -33,6 +34,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return dni
 
     def create(self, validated_data):
+        validated_data.pop('captcha_token', None)
         dni = validated_data.pop('dni')
         user = User.objects.create_user(
             username=validated_data['username'],
@@ -60,6 +62,7 @@ class PasswordRecoveryRequestSerializer(serializers.Serializer):
 class LoginSerializer(serializers.Serializer):
     dni = serializers.CharField(max_length=150)
     password = serializers.CharField(write_only=True)
+    captcha_token = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     def validate_dni(self, value):
         return value.strip()

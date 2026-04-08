@@ -1,6 +1,7 @@
 export interface LoginRequest {
   dni: string;
   password: string;
+  captcha_token: string;
 }
 
 export interface RegisterRequest {
@@ -8,6 +9,7 @@ export interface RegisterRequest {
   email: string;
   dni: string;
   password: string;
+  captcha_token: string;
 }
 
 export interface RegisterResponse {

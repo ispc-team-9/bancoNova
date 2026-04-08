@@ -1,14 +1,11 @@
-<div class="tft-login-page" aria-labelledby="register-title">
-  <div class="ambient-glow ambient-glow-left" aria-hidden="true"></div>
-  <div class="ambient-glow ambient-glow-right" aria-hidden="true"></div>
+<div class="auth-page" aria-labelledby="register-title">
+  <div class="auth-layout">
+    <section class="auth-card">
+      <p class="card-eyebrow">BANCONOVA</p>
+      <h1 id="register-title">Registro de usuario</h1>
+      <p class="card-subtitle">Completa tus datos para crear tu acceso de banca digital.</p>
 
-  <div class="cards-layout">
-    <section class="tft-login-card tft-panel">
-      <p class="card-eyebrow">SET TACTICO • SPACE GODS</p>
-      <h1 id="register-title">Crea tu cuenta en la Arena</h1>
-      <p class="card-subtitle">Completa tus datos para unirte a Space Gods y empezar a jugar.</p>
-
-      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="tft-login-form">
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
         <div class="field-group">
           <label for="username">Usuario</label>
           <input
@@ -16,7 +13,7 @@
             type="text"
             formControlName="username"
             autocomplete="username"
-            placeholder="Tu nombre de invocador"
+            placeholder="Ingresa tu usuario"
             [class.input-error]="hasFieldError('username')"
             [attr.aria-invalid]="hasFieldError('username')"
             required
@@ -55,7 +52,7 @@
         </div>
 
         <div class="field-group">
-          <label for="password">Contrasena</label>
+          <label for="password">Contraseña</label>
           <input
             id="password"
             type="password"
@@ -69,37 +66,32 @@
           <p class="error-text" *ngIf="hasFieldError('password')">{{ getFieldError('password') }}</p>
         </div>
 
+        <div class="captcha-wrapper">
+          <div #recaptchaContainer class="recaptcha-slot" aria-label="Verificacion reCAPTCHA"></div>
+        </div>
+        <p class="error-text" *ngIf="hasFieldError('captchaToken')">{{ getFieldError('captchaToken') }}</p>
+
         <p class="api-error" *ngIf="apiError">{{ apiError }}</p>
 
         <button type="submit" [disabled]="isLoading || registerForm.invalid">
-          <span class="button-loader" *ngIf="isLoading" aria-hidden="true"></span>
           <span>{{ isLoading ? 'Registrando...' : 'Crear cuenta' }}</span>
         </button>
       </form>
 
-      <p class="card-footnote">Prepara tu composicion inicial y entra a tu primera partida.</p>
+      <p class="card-footnote">Tus datos se procesan bajo estandares de seguridad bancaria.</p>
     </section>
 
-    <aside class="tft-promo-card tft-panel" aria-label="Referencia oficial Teamfight Tactics">
-      <p class="card-eyebrow">SITIO OFICIAL</p>
-      <h2>Explora Teamfight Tactics</h2>
-      <p class="promo-subtitle">Descubre novedades, modos de juego y contenido del set actual directamente desde Riot Games.</p>
-
+    <aside class="info-card" aria-label="Informacion institucional">
+      <p class="info-eyebrow">BANCONOVA</p>
+      <h2>Seguridad desde el primer registro</h2>
+      <p>
+        El alta de usuarios integra validaciones de datos y controles de acceso para proteger cada cuenta desde su creacion.
+      </p>
       <img
-        class="promo-image"
-        src="https://i.ytimg.com/vi/oKodzeZwJDo/maxresdefault.jpg"
-        alt="Arte oficial de Teamfight Tactics"
+        src="https://welcome.atlasgov.com/static/6b7dcce0bed59d2d538948a3759ac73d/Artigo_Estrategia-Corporativa_1.webp"
+        alt="Equipo de gestion corporativa de BancoNova"
         loading="lazy"
       >
-
-      <a
-        class="promo-link"
-        href="https://teamfighttactics.leagueoflegends.com/es-es/"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Ir al sitio de TFT
-      </a>
     </aside>
   </div>
 </div>

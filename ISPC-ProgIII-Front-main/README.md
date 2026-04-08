@@ -1,50 +1,51 @@
 # ISPC-ProgIII-Front
 
-Repositorio de consulta para la cátedra Programación III del ISPC.
+Frontend del proyecto de Programacion III (ISPC), construido con Angular.
 
-## Proyecto: Login Frontend
+## Estructura
 
-Este repositorio contiene un proyecto de login desarrollado en Angular, pensado para prácticas de estudiantes de Programación III del ISPC.
+- login-frontend/: aplicacion principal.
 
-### ¿Qué incluye?
-- Formulario de login con validación de usuario y contraseña.
-- Redirección a una pantalla de bienvenida tras el login exitoso.
-- Estructura simple y clara para fines educativos.
+## Funcionalidades implementadas
 
-## ¿Cómo ejecutar el proyecto?
+- Login con DNI + contrasena.
+- Registro con validaciones.
+- Integracion con reCAPTCHA v2 en login y registro.
+- Pantalla Home con:
+  - carrusel automatico,
+  - tarjetas de contenido,
+  - boton flotante de WhatsApp.
+- Integracion con backend Django por API REST.
 
-1. Ingresa a la carpeta del frontend:
-	```
-	cd login-frontend
-	```
-2. Instala las dependencias:
-	```
-	npm install
-	```
-3. Inicia el servidor de desarrollo:
-	```
-	npm start
-	```
-4. Abre tu navegador en [http://localhost:4200/](http://localhost:4200/)
+## Ejecutar frontend
 
-El sistema recargará automáticamente ante cualquier cambio en el código fuente.
+```powershell
+cd login-frontend
+npm install
+npm start
+```
 
-## Sobre el login
-- El formulario solicita usuario y contraseña.
-- Al enviar datos válidos, realiza una petición a un backend (por defecto: `http://localhost:8000/api/login/`).
-- Si el login es exitoso, redirige a la pantalla de bienvenida.
+Aplicacion en: http://localhost:4200
 
-## Requisitos
-- Node.js y npm instalados.
-- Angular CLI instalado globalmente (opcional, recomendado):
-  ```
-  npm install -g @angular/cli
-  ```
+## Configuracion
 
-## Recursos útiles
-- [Documentación Angular CLI](https://angular.dev/tools/cli)
-- [Documentación oficial Angular](https://angular.dev/)
+Archivo de entorno:
 
----
+- login-frontend/src/environments/environment.ts
 
-Este proyecto es solo para fines educativos y de práctica.
+Variables relevantes:
+
+- apiBaseUrl
+- recaptchaSiteKey
+
+## Scripts utiles
+
+```powershell
+npm start      # desarrollo
+npm run build  # build produccion
+npm test       # tests
+```
+
+## Nota
+
+Proyecto con objetivo educativo para practicas de Programacion III.

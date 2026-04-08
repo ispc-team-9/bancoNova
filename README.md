@@ -1,39 +1,40 @@
-# Captura de pantalla
-<picture><img src="/login.png" alt="logo" style="height: 250px;"></picture>
+# ISPC - Proyecto Full Stack (Programacion III)
 
-# Login y Seguridad - Proyecto Full Stack (ISPC)
-Este workspace contiene un proyecto completo de autenticación con:
+<picture><img src="/login.png" alt="Captura de login" style="height: 250px;"></picture>
 
-- Frontend en Angular
-- Backend en Django REST Framework con JWT
-- Recuperación de contraseña con OTP
+Workspace con frontend en Angular y backend en Django REST Framework para autenticacion y seguridad.
 
-## Estructura del proyecto
+## Modulos del workspace
 
 ```text
 ispc/
-	ISPC-ProgIII-Front-main/
-		login-frontend/        # Frontend Angular
-	ISPC-ProgIII-main/       # Backend Django
+  ISPC-ProgIII-Front-main/
+    login-frontend/      # Angular 21
+  ISPC-ProgIII-main/     # Django + DRF + JWT
 ```
 
-## Donde esta cada parte
+## Funcionalidades actuales
 
-- Frontend: `ISPC-ProgIII-Front-main/login-frontend`
-- Backend: `ISPC-ProgIII-main`
+- Registro de usuarios con DNI.
+- Login con JWT (access y refresh).
+- Bloqueo temporal tras intentos fallidos.
+- Recuperacion de contrasena con OTP.
+- Validacion reCAPTCHA v2 en login y registro.
+- Home con carrusel automatico y seccion de tarjetas.
+- Boton flotante de WhatsApp en Home.
 
 ## Requisitos
 
-- Node.js 18+
-- npm
-- Python 3.10+
+- Node.js 18 o superior
+- npm 10 o superior
+- Python 3.10 o superior
 - PostgreSQL
 
-## Como iniciar el proyecto
+## Puesta en marcha (local)
 
-Se recomienda usar 2 terminales: una para backend y otra para frontend.
+Se recomienda usar dos terminales.
 
-### 1) Levantar el backend (Django)
+### 1) Backend
 
 ```powershell
 cd ISPC-ProgIII-main
@@ -42,24 +43,22 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Crear base de datos en PostgreSQL (si no existe):
+Crear DB si no existe:
 
 ```powershell
 psql -U postgres -c "CREATE DATABASE ispc_db;"
 ```
 
-Aplicar migraciones y correr servidor:
+Migraciones y servidor:
 
 ```powershell
 python manage.py migrate
 python manage.py runserver
 ```
 
-Backend disponible en: `http://localhost:8000`
+Backend: http://localhost:8000
 
-### 2) Levantar el frontend (Angular)
-
-En otra terminal:
+### 2) Frontend
 
 ```powershell
 cd ISPC-ProgIII-Front-main/login-frontend
@@ -67,33 +66,39 @@ npm install
 npm start
 ```
 
-Frontend disponible en: `http://localhost:4200`
+Frontend: http://localhost:4200
 
-## Conexion frontend-backend
+## Configuracion de entorno
 
-El frontend ya esta configurado para consumir la API en:
+### Frontend
 
-`http://localhost:8000/api`
+Archivo:
 
-Archivo de entorno:
+- ISPC-ProgIII-Front-main/login-frontend/src/environments/environment.ts
 
-- `ISPC-ProgIII-Front-main/login-frontend/src/environments/environment.ts`
+Variables clave:
+
+- apiBaseUrl
+- recaptchaSiteKey
+
+### Backend
+
+Archivo:
+
+- ISPC-ProgIII-main/backend/settings.py
+
+Variables clave:
+
+- DATABASES
+- RECAPTCHA_SECRET_KEY
 
 ## Endpoints principales
 
-- `POST /api/register/`
-- `POST /api/login/`
-- `POST /api/password-recovery/request-otp/`
-- `POST /api/password-recovery/reset/`
+- POST /api/register/
+- POST /api/login/
+- POST /api/password-recovery/request-otp/
+- POST /api/password-recovery/reset/
 
-## Nota rapida de configuracion
+## Nota
 
-La configuracion de base de datos del backend esta en:
-
-- `ISPC-ProgIII-main/backend/settings.py`
-
-Si usas otro usuario/password/puerto de PostgreSQL, ajustalo en ese archivo.
-
----
-
-Proyecto educativo - Programacion III - ISPC
+Proyecto educativo de Programacion III (ISPC).

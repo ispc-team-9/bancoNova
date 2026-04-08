@@ -6,7 +6,7 @@
   min-height: 100dvh;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  background: #050b17;
+  background: var(--bn-bg);
 }
 
 .page-content {

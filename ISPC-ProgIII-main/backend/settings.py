@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
 
@@ -178,3 +179,9 @@ SIMPLE_JWT = {
 # Encrypted Fields
 ENCRYPTED_FIELD_KEY_DIR = BASE_DIR / 'keys'
 FIELD_ENCRYPTION_KEY = 'MxQLxX-ts7G61oK5hdo5twknFfg-6zAFQyD1-zz5Ass='
+
+# Google reCAPTCHA (server-side verification)
+RECAPTCHA_SECRET_KEY = os.getenv(
+    'RECAPTCHA_SECRET_KEY',
+    '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ8-Rf9kT' if DEBUG else '',
+)

@@ -1,10 +1,23 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { finalize, firstValueFrom } from 'rxjs';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../service/auth.service';
+import { environment } from '../../../environments/environment';
+
+declare global {
+  interface Window {
+    grecaptcha?: {
+      render: (container: HTMLElement, parameters: Record<string, unknown>) => number;
+      reset: (widgetId?: number) => void;
+    };
+    onRecaptchaLoginSuccess?: (token: string) => void;
+    onRecaptchaLoginExpired?: () => void;
+    onRecaptchaLoginError?: () => void;
+  }
+}
 
 @Component({
   selector: 'app-login',
@@ -12,7 +25,7 @@ import { AuthService } from '../../service/auth.service';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class Login implements OnInit {
+export class Login implements OnInit, AfterViewInit, OnDestroy {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -22,21 +35,43 @@ export class Login implements OnInit {
   isLoginBlocked = false;
   lockRemainingText = '';
   isPasswordVisible = false;
+  recaptchaSiteKey = environment.recaptchaSiteKey;
+
+  @ViewChild('recaptchaContainer') recaptchaContainer?: ElementRef<HTMLDivElement>;
 
   private readonly maxLoginAttempts = 3;
   private readonly lockMinutes = 5;
-  private readonly lockoutMessage = 'usted ocupo sus 3 intentos porfavor espere 5 min para volver a empezar';
+  private readonly lockoutMessage = 'Se alcanzaron 3 intentos. Espere 5 minutos para volver a intentarlo.';
   private readonly rememberedDniKey = 'rememberedDni';
   private readonly attemptsPrefix = 'login_attempts_';
   private lockTimerId: ReturnType<typeof setInterval> | null = null;
+  private recaptchaWidgetId: number | null = null;
 
   loginForm: FormGroup = this.fb.group({
     dni: ['', [Validators.required, Validators.pattern(/^\d{7,10}$/)]],
     password: ['', [Validators.required, Validators.minLength(8)]],
-    rememberMe: [false]
+    rememberMe: [false],
+    captchaToken: ['', [Validators.required]]
   });
 
   ngOnInit(): void {
+    window.onRecaptchaLoginSuccess = (token: string) => {
+      this.loginForm.patchValue({ captchaToken: token });
+      this.loginForm.get('captchaToken')?.markAsDirty();
+      this.loginForm.get('captchaToken')?.updateValueAndValidity();
+    };
+
+    window.onRecaptchaLoginExpired = () => {
+      this.loginForm.patchValue({ captchaToken: '' });
+      this.loginForm.get('captchaToken')?.markAsTouched();
+      this.loginForm.get('captchaToken')?.updateValueAndValidity();
+    };
+
+    window.onRecaptchaLoginError = () => {
+      this.loginForm.patchValue({ captchaToken: '' });
+      this.apiError = 'No fue posible inicializar reCAPTCHA. Recarga la pagina e intenta nuevamente.';
+    };
+
     const savedDni = localStorage.getItem(this.rememberedDniKey);
     if (savedDni) {
       this.loginForm.patchValue({ dni: savedDni, rememberMe: true });
@@ -49,11 +84,19 @@ export class Login implements OnInit {
     });
   }
 
+  ngAfterViewInit(): void {
+    this.renderRecaptcha();
+  }
+
   ngOnDestroy(): void {
     if (this.lockTimerId) {
       clearInterval(this.lockTimerId);
       this.lockTimerId = null;
     }
+
+    delete window.onRecaptchaLoginSuccess;
+    delete window.onRecaptchaLoginExpired;
+    delete window.onRecaptchaLoginError;
   }
 
   hasFieldError(controlName: string): boolean {
@@ -68,7 +111,17 @@ export class Login implements OnInit {
     }
 
     if (control.errors['required']) {
-      return controlName === 'dni' ? 'El DNI es obligatorio.' : 'La contrasena es obligatoria.';
+      if (controlName === 'dni') {
+        return 'El DNI es obligatorio.';
+      }
+
+      if (controlName === 'password') {
+        return 'La contrasena es obligatoria.';
+      }
+
+      if (controlName === 'captchaToken') {
+        return 'Debes completar el reCAPTCHA para continuar.';
+      }
     }
 
     if (control.errors['pattern']) {
@@ -91,9 +144,9 @@ export class Login implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Solicitar OTP',
       cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#4e6cff',
-      background: '#09172c',
-      color: '#e8edf6',
+      confirmButtonColor: '#2563EB',
+      background: '#FFFFFF',
+      color: '#1E293B',
       showLoaderOnConfirm: true,
       preConfirm: async (value) => {
         const trimmedValue = (value ?? '').trim();
@@ -110,7 +163,7 @@ export class Login implements OnInit {
           );
           return trimmedValue;
         } catch (error: any) {
-          const message = error?.error?.error || 'No se pudo solicitar el OTP. Intentalo de nuevo.';
+          const message = error?.error?.error || 'No fue posible solicitar el OTP en este momento.';
           Swal.showValidationMessage(message);
           return null;
         }
@@ -133,9 +186,9 @@ export class Login implements OnInit {
       title: 'OTP generado',
       text: 'Revisa la consola del backend para ver el OTP de prueba.',
       confirmButtonText: 'Continuar',
-      confirmButtonColor: '#4e6cff',
-      background: '#09172c',
-      color: '#e8edf6',
+      confirmButtonColor: '#2563EB',
+      background: '#FFFFFF',
+      color: '#1E293B',
       showClass: {
         popup: 'tft-swal-show'
       },
@@ -155,9 +208,9 @@ export class Login implements OnInit {
       showCancelButton: true,
       confirmButtonText: 'Restablecer',
       cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#4e6cff',
-      background: '#09172c',
-      color: '#e8edf6',
+      confirmButtonColor: '#2563EB',
+      background: '#FFFFFF',
+      color: '#1E293B',
       showLoaderOnConfirm: true,
       preConfirm: async () => {
         const otpCode = (document.getElementById('otpCode') as HTMLInputElement)?.value?.trim();
@@ -189,7 +242,7 @@ export class Login implements OnInit {
             })
           );
         } catch (error: any) {
-          const message = error?.error?.error || 'No se pudo restablecer la contrasena.';
+          const message = error?.error?.error || 'No fue posible restablecer la contrasena.';
           Swal.showValidationMessage(message);
         }
       },
@@ -207,9 +260,9 @@ export class Login implements OnInit {
           title: 'Contrasena actualizada',
           text: 'Ya puedes iniciar sesion con tu nueva contrasena.',
           confirmButtonText: 'Perfecto',
-          confirmButtonColor: '#4e6cff',
-          background: '#09172c',
-          color: '#e8edf6',
+          confirmButtonColor: '#2563EB',
+          background: '#FFFFFF',
+          color: '#1E293B',
           showClass: {
             popup: 'tft-swal-show'
           },
@@ -231,7 +284,17 @@ export class Login implements OnInit {
       return;
     }
 
-    const { dni, password, rememberMe } = this.loginForm.value;
+    if (!this.recaptchaSiteKey) {
+      this.apiError = 'reCAPTCHA no configurado. Define una Site Key en environment.ts.';
+      return;
+    }
+
+    const { dni, password, rememberMe, captchaToken } = this.loginForm.value;
+    if (!captchaToken) {
+      this.loginForm.get('captchaToken')?.markAsTouched();
+      return;
+    }
+
     const trimmedDni = (dni ?? '').trim();
     const currentState = this.getLockState(trimmedDni);
     if (currentState.lockedUntil && currentState.lockedUntil > Date.now()) {
@@ -249,7 +312,7 @@ export class Login implements OnInit {
       localStorage.removeItem(this.rememberedDniKey);
     }
 
-    this.authService.login({ dni: trimmedDni, password })
+    this.authService.login({ dni: trimmedDni, password, captcha_token: captchaToken })
       .pipe(finalize(() => {
         this.isLoading = false;
       }))
@@ -262,13 +325,13 @@ export class Login implements OnInit {
 
           Swal.fire({
             title: 'Ingreso exitoso',
-            text: 'Bienvenido a Space Gods.',
+            text: 'Acceso validado correctamente.',
             icon: 'success',
             timer: 1500,
             timerProgressBar: true,
             showConfirmButton: false,
-            background: '#09172c',
-            color: '#e8edf6',
+            background: '#FFFFFF',
+            color: '#1E293B',
             showClass: {
               popup: 'tft-swal-show'
             },
@@ -281,6 +344,7 @@ export class Login implements OnInit {
         },
         error: (error) => {
           console.error('Login failed', error);
+          this.resetRecaptcha();
           const statusCode = error?.status;
           const backendMessage = error?.error?.detail || error?.error?.error;
 
@@ -295,12 +359,12 @@ export class Login implements OnInit {
               this.applyBlockedState(nextState.lockedUntil);
               this.apiError = this.lockoutMessage;
             } else {
-              this.apiError = 'DNI o contrasena incorrectos.';
+              this.apiError = 'No fue posible validar las credenciales ingresadas.';
             }
           } else if (statusCode === 0) {
-            this.apiError = 'No se pudo conectar con el servidor.';
+            this.apiError = 'No hay conexion con el servidor.';
           } else {
-            this.apiError = backendMessage || 'No se pudo iniciar sesion. Intentalo de nuevo.';
+            this.apiError = backendMessage || 'No fue posible iniciar sesion en este momento.';
           }
 
           Swal.fire({
@@ -308,9 +372,9 @@ export class Login implements OnInit {
             text: this.apiError,
             icon: 'error',
             confirmButtonText: 'Entendido',
-            confirmButtonColor: '#4e6cff',
-            background: '#09172c',
-            color: '#e8edf6',
+            confirmButtonColor: '#2563EB',
+            background: '#FFFFFF',
+            color: '#1E293B',
             showClass: {
               popup: 'tft-swal-show'
             },
@@ -327,6 +391,37 @@ export class Login implements OnInit {
 
   togglePasswordVisibility(): void {
     this.isPasswordVisible = !this.isPasswordVisible;
+  }
+
+  private renderRecaptcha(): void {
+    if (!this.recaptchaSiteKey || !this.recaptchaContainer?.nativeElement) {
+      return;
+    }
+
+    const grecaptcha = window.grecaptcha;
+    if (!grecaptcha?.render) {
+      setTimeout(() => this.renderRecaptcha(), 300);
+      return;
+    }
+
+    if (this.recaptchaWidgetId !== null) {
+      return;
+    }
+
+    this.recaptchaWidgetId = grecaptcha.render(this.recaptchaContainer.nativeElement, {
+      sitekey: this.recaptchaSiteKey,
+      callback: 'onRecaptchaLoginSuccess',
+      'expired-callback': 'onRecaptchaLoginExpired',
+      'error-callback': 'onRecaptchaLoginError',
+    });
+  }
+
+  private resetRecaptcha(): void {
+    if (this.recaptchaWidgetId !== null && window.grecaptcha?.reset) {
+      window.grecaptcha.reset(this.recaptchaWidgetId);
+    }
+    this.loginForm.patchValue({ captchaToken: '' });
+    this.loginForm.get('captchaToken')?.markAsTouched();
   }
 
   private getStorageKey(dni: string): string {
